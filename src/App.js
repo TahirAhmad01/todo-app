@@ -1,9 +1,13 @@
+import { AuthProvider } from "./context/authContext";
 import Home from "./pages/home";
+import "./style/style.scss";
 
 function App() {
   return (
     <div className="App">
-      <Home />
+      <AuthProvider>
+        <Home />
+      </AuthProvider>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import GoogleLoginBtn from "./../components/GoogleLoginBtn";
+import GoogleLoginBtn from "../components/GoogleLogin";
 
 function Home() {
   return <GoogleLoginBtn />;
