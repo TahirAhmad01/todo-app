@@ -19,7 +19,20 @@ function GoogleLoginBtn() {
   return (
     <>
       {loading ? (
-        "loading"
+        <div class="holder">
+          <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
       ) : login === true ? (
         <>
           <div className="userInfo">
