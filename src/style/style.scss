@@ -160,7 +160,7 @@ button {
 }
 .logout_btn {
   border: none;
-  font-size: 30px;
+  font-size: 26px;
   background-color: transparent;
   &:hover {
     cursor: pointer;
@@ -176,5 +176,13 @@ button {
   &:hover {
     cursor: pointer;
     background-color: #f5f5f5;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    span {
+      display: none;
+    }
   }
 }
