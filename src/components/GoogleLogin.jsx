@@ -9,7 +9,8 @@ function GoogleLoginBtn() {
   const handleClick = async () => {
     try {
       setLoading(true);
-      await GoogleLogin().then(setLoading(false));
+      await GoogleLogin();
+      setLoading(false);
     } catch {
       setLoading(false);
     }
