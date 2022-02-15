@@ -60,9 +60,9 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     GoogleLogin,
+    logout,
     login,
     userInfo,
-    logout,
     error,
   };
 

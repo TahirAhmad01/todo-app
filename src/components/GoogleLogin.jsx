@@ -16,7 +16,7 @@ function GoogleLoginBtn() {
             </div>
 
             <div className="image">
-              <img src={userIco} alt="user Image" />
+              <img src={userIco} alt="userImage" />
             </div>
           </div>
           <div className="user_bar">
