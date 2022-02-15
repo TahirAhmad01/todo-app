@@ -8,6 +8,7 @@ import { createContext, useContext, useState } from "react";
 import "../firebase/config";
 
 const AuthContext = createContext();
+// const cookies = new Cookies();
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -36,6 +37,8 @@ export const AuthProvider = ({ children }) => {
           profileIco: user.photoURL,
         });
         setLogin(true);
+        // cookies.set("Name", setInfo.name, { path: "/" });
+        // console.log(cookies.get("Name"));
       })
       .catch((error) => {
         const errorMessage = error.message;
