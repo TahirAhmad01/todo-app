@@ -1,8 +1,8 @@
 import React from "react";
-import GoogleLoginBtn from "../components/GoogleLogin";
+import Nav from "./../components/nav";
 
 function Home() {
-  return <GoogleLoginBtn />;
+  return <Nav />;
 }
 
 export default Home;
