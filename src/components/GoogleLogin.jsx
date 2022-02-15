@@ -17,27 +17,23 @@ function GoogleLoginBtn() {
 
   return (
     <>
-      {login === true ? (
+      {loading ? (
+        "loading"
+      ) : login === true ? (
         <>
-          {loading ? (
-            "loading"
-          ) : (
-            <>
-              <div className="userInfo">
-                <div>
-                  <div style={{ fontWeight: "bold" }}>{userInfo.name}</div>
-                  <div>{userInfo.email}</div>
-                </div>
+          <div className="userInfo">
+            <div>
+              <div style={{ fontWeight: "bold" }}>{userInfo.name}</div>
+              <div>{userInfo.email}</div>
+            </div>
 
-                <div className="image">
-                  <img src={userIco} alt="userImage" />
-                </div>
-              </div>
-              <div className="user_bar">
-                <button onClick={logout}>Logout</button>
-              </div>
-            </>
-          )}
+            <div className="image">
+              <img src={userIco} alt="userImage" />
+            </div>
+          </div>
+          <div className="user_bar">
+            <button onClick={logout}>Logout</button>
+          </div>
         </>
       ) : (
         <>
