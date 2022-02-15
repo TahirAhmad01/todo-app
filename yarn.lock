@@ -7634,14 +7634,14 @@
     "strip-ansi" "^6.0.1"
     "text-table" "^0.2.0"
 
-"react-dom@*", "react-dom@^17.0.2":
-  "integrity" "sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA=="
-  "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz"
-  "version" "17.0.2"
+"react-dom@*", "react-dom@^18.0.0-rc.0-next-27b569969-20220211":
+  "integrity" "sha512-XQ59fgrMbT7MQhGr47nzVyeFk2aid+9j4HxRI0h8igaDlj7TJIGiOVbHMRjEjtnKjOkMqa94V0tclrDMEGcSUg=="
+  "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-18.0.0-rc.0-next-27b569969-20220211.tgz"
+  "version" "18.0.0-rc.0-next-27b569969-20220211"
   dependencies:
     "loose-envify" "^1.1.0"
     "object-assign" "^4.1.1"
-    "scheduler" "^0.20.2"
+    "scheduler" "0.21.0-rc.0-next-27b569969-20220211"
 
 "react-error-overlay@^6.0.10":
   "integrity" "sha512-mKR90fX7Pm5seCOfz8q9F+66VCc1PGsWSBxKbITjfKVQHMNF2zudxHnMdJiB1fRCb+XsbQV9sO9DCkgsMQgBIA=="
@@ -7723,10 +7723,10 @@
   optionalDependencies:
     "fsevents" "^2.3.2"
 
-"react@*", "react@^17.0.2", "react@>= 16", "react@>= 16.3.0", "react@17.0.2":
-  "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
-  "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
-  "version" "17.0.2"
+"react@*", "react@^18.0.0-rc.0-next-27b569969-20220211", "react@>= 16", "react@>= 16.3.0", "react@18.0.0-rc.0-next-27b569969-20220211":
+  "integrity" "sha512-sD//cuEVCF38jbmq9idcKlpyi0UgqiIicw0VXCc+fQIln/YwBpmfaAI6CONGF5yZETLau4NXHJV8rnP7tbJ7ow=="
+  "resolved" "https://registry.npmjs.org/react/-/react-18.0.0-rc.0-next-27b569969-20220211.tgz"
+  "version" "18.0.0-rc.0-next-27b569969-20220211"
   dependencies:
     "loose-envify" "^1.1.0"
     "object-assign" "^4.1.1"
@@ -8017,10 +8017,10 @@
   dependencies:
     "xmlchars" "^2.2.0"
 
-"scheduler@^0.20.2":
-  "integrity" "sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ=="
-  "resolved" "https://registry.npmjs.org/scheduler/-/scheduler-0.20.2.tgz"
-  "version" "0.20.2"
+"scheduler@0.21.0-rc.0-next-27b569969-20220211":
+  "integrity" "sha512-tY6JYa+HRtqpsJ5CWHHRosLO3ZupuiZucQGlZdMIQgB4g9/qRvJA4NR7458YNmlX2cfVah0LcynfgbbKJE/aaQ=="
+  "resolved" "https://registry.npmjs.org/scheduler/-/scheduler-0.21.0-rc.0-next-27b569969-20220211.tgz"
+  "version" "0.21.0-rc.0-next-27b569969-20220211"
   dependencies:
     "loose-envify" "^1.1.0"
     "object-assign" "^4.1.1"
