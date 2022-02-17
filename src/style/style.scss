@@ -179,14 +179,6 @@ button {
   }
 }
 
-@media (max-width: 480px) {
-  .logo {
-    span {
-      display: none;
-    }
-  }
-}
-
 .todo_body {
   margin: 10px 0;
   display: flex;
@@ -223,5 +215,28 @@ button {
     margin: 5px;
     border-radius: 7px;
     text-transform: capitalize;
+  }
+}
+
+.modal_size {
+  width: 420px;
+  padding: 32px;
+}
+
+@media (max-width: 480px) {
+  .logo {
+    span {
+      display: none;
+    }
+  }
+
+  .todo_inner {
+    width: 100%;
+    margin: 10px 7px;
+  }
+
+  .modal_size {
+    width: 96%;
+    padding: 17px;
   }
 }
