@@ -186,3 +186,42 @@ button {
     }
   }
 }
+
+.todo_body {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  .todo_inner {
+    width: 450px;
+    border-radius: 5px;
+    background-color: #fff;
+    .todo_header {
+      padding: 12px 12px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 12px;
+      .title {
+        font-weight: 600;
+        flex-grow: 1;
+        font-size: 20px;
+      }
+      button {
+        background-color: #fff;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .todoListCon {
+    padding: 10px 15px;
+    background-color: rgb(247, 247, 247);
+    margin: 5px;
+    border-radius: 7px;
+    text-transform: capitalize;
+  }
+}
