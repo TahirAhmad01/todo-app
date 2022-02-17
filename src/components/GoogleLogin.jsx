@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import swal from "sweetalert";
 import { useAuth } from "../context/authContext";
 
 function GoogleLogin() {
@@ -14,6 +15,24 @@ function GoogleLogin() {
     } catch {
       setLoading(false);
     }
+  };
+
+  const handleLogOut = () => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this imaginary file!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        swal("Logout Successful", {
+          icon: "success",
+        });
+        logout();
+      } else {
+      }
+    });
   };
 
   return (
@@ -44,7 +63,8 @@ function GoogleLogin() {
             </div>
 
             <div className="user_bar">
-              <button onClick={logout} className="logout_btn">
+              {/* <button onClick={logout} className="logout_btn"> */}
+              <button onClick={handleLogOut} className="logout_btn">
                 <i className="fa-solid fa-arrow-right-from-bracket"></i>
               </button>
             </div>
