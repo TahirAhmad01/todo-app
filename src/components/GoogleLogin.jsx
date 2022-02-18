@@ -5,6 +5,7 @@ import { useAuth } from "../context/authContext";
 function GoogleLogin() {
   const { GoogleLogin, login, logout, userInfo, error } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const userIco = userInfo.profileIco;
 
   const handleClick = async () => {
@@ -17,6 +18,15 @@ function GoogleLogin() {
     }
   };
 
+  const logout_con = async () => {
+    setLoading2(true);
+    await logout();
+    setLoading2(false);
+    swal("Logout Successful", {
+      icon: "success",
+    });
+  };
+
   const handleLogOut = () => {
     swal({
       title: "Are you sure?",
@@ -26,10 +36,7 @@ function GoogleLogin() {
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
-        swal("Logout Successful", {
-          icon: "success",
-        });
-        logout();
+        logout_con();
       } else {
       }
     });
@@ -65,7 +72,11 @@ function GoogleLogin() {
             <div className="user_bar">
               {/* <button onClick={logout} className="logout_btn"> */}
               <button onClick={handleLogOut} className="logout_btn">
-                <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                {loading2 ? (
+                  "loading"
+                ) : (
+                  <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                )}
               </button>
             </div>
           </div>

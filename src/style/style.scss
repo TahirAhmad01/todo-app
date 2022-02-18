@@ -223,6 +223,19 @@ button {
   padding: 32px;
 }
 
+.error {
+  color: #dc3545;
+  font-size: 12px;
+}
+
+.textField {
+  margin-bottom: 24px;
+}
+
+.inpError {
+  border: 2px solid #dc3545 !important;
+}
+
 @media (max-width: 480px) {
   .logo {
     span {

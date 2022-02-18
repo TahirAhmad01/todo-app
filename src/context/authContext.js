@@ -16,7 +16,7 @@ export function useAuth() {
 
 export const AuthProvider = ({ children }) => {
   const [login, setLogin] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
   const [userInfo, setInfo] = useState({
     name: "",
     email: "",
