@@ -67,7 +67,11 @@ export const AuthProvider = ({ children }) => {
           email: obj.email,
           profileIco: obj.userImg,
         });
+      } else {
+        return;
       }
+    } else {
+      return;
     }
   }, []);
 

@@ -24,9 +24,22 @@ const todoListItem = [
 ];
 
 function TodoBox() {
+  const s_time = new Date(),
+    hour = s_time.getHours(),
+    min = s_time.getMinutes(),
+    sec = s_time.getSeconds(),
+    day = s_time.getDay(),
+    year = s_time.getFullYear(),
+    s_date = s_time.getDate(),
+    month = s_time.getMonth();
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [date, setDate] = useState("2017-05-24");
+  const [date, setDate] = useState(
+    `${year}-${month < 10 ? "0" + month : month}-${
+      s_date < 10 ? "0" + s_date : s_date
+    }`
+  );
   const [time, setTime] = useState("07:30");
   const [inpError, setInpError] = useState(false);
 
@@ -50,7 +63,6 @@ function TodoBox() {
   const handleDate = (e) => {
     const dateValue = e.target.value;
     setDate(dateValue);
-    console.log(date);
   };
 
   const handleTime = (e) => {
@@ -59,7 +71,6 @@ function TodoBox() {
   };
 
   const updateTodo = () => {
-    //update todo func
     if (value !== "") {
       todoListItem.push({ name: value, Date: date + " - " + time });
       handleClose();
@@ -81,7 +92,6 @@ function TodoBox() {
             <h2 style={{ textAlign: "center", marginBottom: "22px" }}>
               New Task
             </h2>
-
             {/* <TextField
               helperText=" "
               id="demo-helper-text-aligned-no-helper"
