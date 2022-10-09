@@ -99,6 +99,7 @@ function TodoBox() {
                     JSON.stringify(snapshot.val())
                   );
                   setTodoList(snapshot.val());
+                  console.log("data inserted");
                 } else {
                   console.log("No data available");
                 }
