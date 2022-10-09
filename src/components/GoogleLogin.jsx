@@ -3,10 +3,10 @@ import swal from "sweetalert";
 import { useAuth } from "../context/authContext";
 
 function GoogleLogin() {
-  const { GoogleLogin, login, logout, userInfo, error } = useAuth();
+  const { GoogleLogin, logout, currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
-  const userIco = userInfo.profileIco;
+  const { displayName, photoURL } = currentUser || {};
 
   const handleClick = async () => {
     try {
@@ -44,9 +44,9 @@ function GoogleLogin() {
 
   return (
     <>
-      {loading ? (
-        <div class="holder">
-          <div class="preloader">
+      {loading && (
+        <div className="holder">
+          <div className="preloader">
             <div></div>
             <div></div>
             <div></div>
@@ -59,14 +59,16 @@ function GoogleLogin() {
             <div></div>
           </div>
         </div>
-      ) : login === true ? (
+      )}
+
+      {currentUser !== null ? (
         <>
           <div className="userInfo">
             <div className="image">
-              <img src={userIco} alt="userImage" />
+              <img src={photoURL} alt="userImage" />
             </div>
             <div>
-              <div className="userName">{userInfo.name}</div>
+              <div className="userName">{displayName}</div>
             </div>
 
             <div className="user_bar">
@@ -88,7 +90,7 @@ function GoogleLogin() {
           </button>
         </>
       )}
-      {error && error.errorMessage}
+      {/* {error && error} */}
     </>
   );
 }

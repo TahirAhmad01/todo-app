@@ -1,47 +1,51 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import { child, get, getDatabase, ref, set } from "firebase/database";
+import moment from "moment/moment";
+import { useEffect, useState } from "react";
+import { useAuth } from "./../context/authContext";
 import AddTodo from "./AddTodo";
 
-const todoListItem = [
-  {
-    name: "meting",
-    Date: "today",
-  },
-  {
-    name: "meting",
-    Date: "today",
-  },
-  {
-    name: "meting",
-    Date: "today",
-  },
-  {
-    name: "meting",
-    Date: "today",
-  },
-];
+// const todoListItem = [];
 
 function TodoBox() {
-  const s_time = new Date(),
-    hour = s_time.getHours(),
-    min = s_time.getMinutes(),
-    sec = s_time.getSeconds(),
-    day = s_time.getDay(),
-    year = s_time.getFullYear(),
-    s_date = s_time.getDate(),
-    month = s_time.getMonth();
+  // const s_time = new Date();
+  // hour = s_time.getHours(),
+  // min = s_time.getMinutes();
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [date, setDate] = useState(
-    `${year}-${month < 10 ? "0" + month : month}-${
-      s_date < 10 ? "0" + s_date : s_date
-    }`
-  );
+  const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [time, setTime] = useState("07:30");
   const [inpError, setInpError] = useState(false);
+
+  const { todoList, currentUser, setTodoList } = useAuth() || {};
+  const { uid } = currentUser || {};
+  console.log(uid);
+  // console.log(new Date().toISOString().substring(0, 10));
+
+  useEffect(() => {
+    const dbRef = ref(getDatabase());
+    if (currentUser !== null) {
+      get(child(dbRef, `todos/${uid}`))
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            console.log(snapshot.val());
+            localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
+            setTodoList(snapshot.val());
+          } else {
+            localStorage.removeItem("TodoList");
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      localStorage.setItem("TodoList", JSON.stringify(todoList));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -61,19 +65,54 @@ function TodoBox() {
   };
 
   const handleDate = (e) => {
-    const dateValue = e.target.value;
-    setDate(dateValue);
+    setDate(e.target.value);
+    console.log(date);
   };
 
   const handleTime = (e) => {
-    const timeValue = e.target.value;
-    setTime(timeValue);
+    setTime(e.target.value);
   };
+
+  const ids = todoList?.map((todo) => {
+    return todo?.id;
+  });
+  const max = Math.max(...ids);
+  const newId = max === -Infinity ? 1 : max + 1;
 
   const updateTodo = () => {
     if (value !== "") {
-      todoListItem.push({ name: value, Date: date + " - " + time });
+      const db = getDatabase();
+      const dbRef = ref(getDatabase());
+
+      todoList.push({ title: value, Date: date, time, id: newId });
       handleClose();
+
+      if (currentUser !== null) {
+        set(ref(db, "todos/" + uid), todoList)
+          .then(() => {
+            get(child(dbRef, `todos/${uid}`))
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  console.log(snapshot.val());
+                  localStorage.setItem(
+                    "TodoList",
+                    JSON.stringify(snapshot.val())
+                  );
+                  setTodoList(snapshot.val());
+                } else {
+                  console.log("No data available");
+                }
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        localStorage.setItem("TodoList", JSON.stringify(todoList));
+      }
     } else {
       setInpError(true);
     }
@@ -90,7 +129,7 @@ function TodoBox() {
             handleOpen={handleOpen}
           >
             <h2 style={{ textAlign: "center", marginBottom: "22px" }}>
-              New Task
+              Add New Task
             </h2>
             {/* <TextField
               helperText=" "
@@ -118,7 +157,7 @@ function TodoBox() {
             <Stack component="form" spacing={3}>
               <TextField
                 id="date"
-                label="Due Daate"
+                label="Select Date"
                 type="date"
                 value={date}
                 onChange={handleDate}
@@ -128,6 +167,7 @@ function TodoBox() {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                required
               />
 
               <TextField
@@ -145,6 +185,7 @@ function TodoBox() {
                   step: 300, // 5 min
                 }}
                 sx={{ width: "100%" }}
+                required
               />
             </Stack>
 
@@ -163,12 +204,21 @@ function TodoBox() {
           </AddTodo>
         </div>
 
-        {todoListItem.map((todo, index) => (
-          <div className="todoListCon" key={index}>
-            <div>{todo.name}</div>
-            <div>{todo.Date}</div>
-          </div>
-        ))}
+        {todoList.length === 0 ? (
+          <div>No task found</div>
+        ) : (
+          todoList.map((todo, index) => (
+            <div className="todoListCon" key={index}>
+              <div>{todo?.title}</div>
+              {/* <div>
+                {todo?.Date} - {todo?.time}
+              </div> */}
+              <div>
+                {moment(todo?.Date, "YYYY-MM-DD").format("ll")} - {todo?.time}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

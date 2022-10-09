@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 const firebaseApp = initializeApp({
@@ -8,6 +9,10 @@ const firebaseApp = initializeApp({
   storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_MESSAGE_SENDER_ID,
   appId: process.env.REACT_APP_ID,
+  databaseURL: process.env.REACT_APP_DATABASE_URL,
 });
+
+// Initialize Realtime Database and get a reference to the service
+getDatabase(firebaseApp);
 
 export default firebaseApp;

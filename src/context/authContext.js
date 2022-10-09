@@ -1,106 +1,111 @@
 import {
   getAuth,
   GoogleAuthProvider,
+  onAuthStateChanged,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
+import { child, get, getDatabase, ref, set } from "firebase/database";
 import { createContext, useContext, useEffect, useState } from "react";
 import "../firebase/config";
 
 const AuthContext = createContext();
-const hasLogin = localStorage.getItem("todoList");
+
 // const cookies = new Cookies()
 export function useAuth() {
   return useContext(AuthContext);
 }
 
 export const AuthProvider = ({ children }) => {
-  const [login, setLogin] = useState(false);
   const [error, setError] = useState(false);
-  const [userInfo, setInfo] = useState({
-    name: "",
-    email: "",
-    profileIco: "",
-  });
-
+  const [currentUser, setCurrentUser] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [todoList, setTodoList] = useState([]);
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [auth]);
+
+  useEffect(() => {
+    const item = localStorage.getItem("TodoList");
+    if (item !== null) {
+      setTodoList(JSON.parse(item));
+    }
+  }, []);
 
   //google auth login function
   const GoogleLogin = async () => {
     await signInWithPopup(auth, provider)
-      .then((result) => {
-        const user = result.user;
-        const displayName = user.displayName;
-        const email = user.email;
-        const photoURL = user.photoURL;
-        const userObj = {
-          name: displayName,
-          email: email,
-          userImg: photoURL,
-          login: true,
-        };
-        setLogin(true);
-        localStorage.setItem("todoList", JSON.stringify(userObj));
-        const hasLogin2 = localStorage.getItem("todoList");
-        const obj2 = JSON.parse(hasLogin2);
-        setInfo({
-          name: obj2.name,
-          email: obj2.email,
-          profileIco: obj2.userImg,
-        });
+      .then((res) => {
+        console.log("login success");
+        setError("");
+        const getTodo = localStorage.getItem("TodoList");
+        console.log(getTodo);
+        const parseTodo = JSON.parse(getTodo);
+        const userId = res.user.uid;
+
+        const db = getDatabase();
+        const dbRef = ref(getDatabase());
+
+        get(child(dbRef, `todos/${userId}`))
+          .then((snapshot) => {
+            if (snapshot.exists() && getTodo !== null) {
+              const data = [...snapshot.val(), ...parseTodo];
+              set(ref(db, "todos/" + userId), data);
+              localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
+              setTodoList(snapshot.val());
+            } else if (snapshot.exists() && getTodo === null) {
+              localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
+              setTodoList(snapshot.val());
+            } else {
+              set(ref(db, "todos/" + userId), JSON.parse(getTodo));
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       })
       .catch((error) => {
         const errorMessage = error.message;
         setError(errorMessage);
-        console.log(errorMessage);
       });
   };
-  //login check & set userData
-  useEffect(() => {
-    if (hasLogin) {
-      const obj = JSON.parse(hasLogin);
-      if (obj.login === true) {
-        setLogin(true);
-        setInfo({
-          name: obj.name,
-          email: obj.email,
-          profileIco: obj.userImg,
-        });
-      } else {
-        return;
-      }
-    } else {
-      return;
-    }
-  }, []);
 
   //logout function
   function logout() {
     signOut(auth)
-      .then((res) => {
+      .then(() => {
         // Sign-out successful.
-        setLogin(false);
-        localStorage.removeItem("todoList");
+        localStorage.removeItem("TodoList");
+        setTodoList([])
       })
       .catch((error) => {
         const errorMessage = error.message;
         setError(errorMessage);
-        console.log(errorMessage);
       });
   }
 
   const value = {
     GoogleLogin,
     logout,
-    login,
-    userInfo,
     error,
+    currentUser,
+    todoList,
+    setTodoList,
   };
 
   return (
     <>
-      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+      <AuthContext.Provider value={value}>
+        {!loading && children}
+      </AuthContext.Provider>
     </>
   );
 };
