@@ -7,45 +7,52 @@ import { useEffect, useState } from "react";
 import { useAuth } from "./../context/authContext";
 import AddTodo from "./AddTodo";
 
-// const todoListItem = [];
-
 function TodoBox() {
-  // const s_time = new Date();
-  // hour = s_time.getHours(),
-  // min = s_time.getMinutes();
-
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [time, setTime] = useState("07:30");
   const [inpError, setInpError] = useState(false);
+  const [loading, setLogin] = useState(false);
 
   const { todoList, currentUser, setTodoList } = useAuth() || {};
   const { uid } = currentUser || {};
-  console.log(uid);
+  //console.log(uid);
   // console.log(new Date().toISOString().substring(0, 10));
 
   useEffect(() => {
-    const dbRef = ref(getDatabase());
-    if (currentUser !== null) {
-      get(child(dbRef, `todos/${uid}`))
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            console.log(snapshot.val());
-            localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
-            setTodoList(snapshot.val());
-          } else {
-            localStorage.removeItem("TodoList");
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } else {
-      localStorage.setItem("TodoList", JSON.stringify(todoList));
+    async function loadData() {
+      const item = localStorage.getItem("TodoList");
+      const uid = currentUser.uid;
+      const dbRef = ref(getDatabase());
+
+      if (currentUser !== null) {
+        setLogin(true);
+        await get(child(dbRef, `todos/${uid}`))
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
+              setTodoList(snapshot.val());
+            } else {
+              localStorage.removeItem("TodoList");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        setLogin(false);
+      } else {
+        if (item !== null) {
+          setTodoList(JSON.parse(item));
+        }
+      }
     }
+
+    loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  console.log(loading);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -66,18 +73,13 @@ function TodoBox() {
 
   const handleDate = (e) => {
     setDate(e.target.value);
-    console.log(date);
   };
 
   const handleTime = (e) => {
     setTime(e.target.value);
   };
 
-  const ids = todoList?.map((todo) => {
-    return todo?.id;
-  });
-  const max = Math.max(...ids);
-  const newId = max === -Infinity ? 1 : max + 1;
+  const newId = Math.floor(Date.now() / 1000);
 
   const updateTodo = () => {
     if (value !== "") {
@@ -99,7 +101,7 @@ function TodoBox() {
                     JSON.stringify(snapshot.val())
                   );
                   setTodoList(snapshot.val());
-                  console.log("data inserted");
+                  //console.log("data inserted");
                 } else {
                   console.log("No data available");
                 }
@@ -205,20 +207,23 @@ function TodoBox() {
           </AddTodo>
         </div>
 
-        {todoList.length === 0 ? (
+        {loading && <div style={{ textAlign: "center" }}>Loading.....</div>}
+        {!loading && todoList.length === 0 ? (
           <div>No task found</div>
         ) : (
-          todoList.map((todo, index) => (
-            <div className="todoListCon" key={index}>
-              <div>{todo?.title}</div>
-              {/* <div>
+          todoList
+            .sort((a, b) => b.id - a.id)
+            .map((todo, index) => (
+              <div className="todoListCon" key={index}>
+                <div>{todo?.title}</div>
+                {/* <div>
                 {todo?.Date} - {todo?.time}
               </div> */}
-              <div>
-                {moment(todo?.Date, "YYYY-MM-DD").format("ll")} - {todo?.time}
+                <div>
+                  {moment(todo?.Date, "YYYY-MM-DD").format("ll")} - {todo?.time}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
       </div>
     </div>

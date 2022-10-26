@@ -33,13 +33,6 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, [auth]);
 
-  useEffect(() => {
-    const item = localStorage.getItem("TodoList");
-    if (item !== null) {
-      setTodoList(JSON.parse(item));
-    }
-  }, []);
-
   //google auth login function
   const GoogleLogin = async () => {
     await signInWithPopup(auth, provider)
@@ -47,7 +40,6 @@ export const AuthProvider = ({ children }) => {
         console.log("login success");
         setError("");
         const getTodo = localStorage.getItem("TodoList");
-        console.log(getTodo);
         const parseTodo = JSON.parse(getTodo);
         const userId = res.user.uid;
 
@@ -58,9 +50,16 @@ export const AuthProvider = ({ children }) => {
           .then((snapshot) => {
             if (snapshot.exists() && getTodo !== null) {
               const data = [...snapshot.val(), ...parseTodo];
-              set(ref(db, "todos/" + userId), data);
-              localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
-              setTodoList(snapshot.val());
+              set(ref(db, "todos/" + userId), data)
+                .then(() => {
+                  localStorage.setItem(
+                    "TodoList",
+                    JSON.stringify(snapshot.val())
+                  );
+                  setTodoList(data);
+                  console.log(snapshot.val());
+                })
+                .catch((err) => console.log(err));
             } else if (snapshot.exists() && getTodo === null) {
               localStorage.setItem("TodoList", JSON.stringify(snapshot.val()));
               setTodoList(snapshot.val());
@@ -84,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       .then(() => {
         // Sign-out successful.
         localStorage.removeItem("TodoList");
-        setTodoList([])
+        setTodoList([]);
       })
       .catch((error) => {
         const errorMessage = error.message;
