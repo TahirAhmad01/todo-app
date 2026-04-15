@@ -125,7 +125,9 @@ function TodoBox() {
     <div className="my-[40px] mx-auto flex justify-center items-center px-4 max-w-full">
       <div className="w-[600px] max-w-full rounded-2xl bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.01)] border border-slate-100 pb-4 overflow-hidden">
         <div className="p-6 flex items-center justify-between border-b border-slate-100 bg-white">
-          <div className="font-bold text-2xl text-slate-900 tracking-tight">My Tasks</div>
+          <div className="font-bold text-2xl text-slate-900 tracking-tight">
+            My Tasks
+          </div>
           <AddTodo
             open={open}
             handleClose={handleClose}
@@ -151,7 +153,9 @@ function TodoBox() {
                 error={inpError && true}
               />
               {inpError ? (
-                <span className="text-red-500 text-xs mt-1 block">Please enter a value</span>
+                <span className="text-red-500 text-xs mt-1 block">
+                  Please enter a value
+                </span>
               ) : (
                 ""
               )}
@@ -200,28 +204,44 @@ function TodoBox() {
               <Button variant="outlined" color="error" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button variant="contained" className="!bg-indigo-500 !hover:bg-indigo-600" onClick={updateTodo}>
+              <Button
+                variant="contained"
+                className="!bg-indigo-500 !hover:bg-indigo-600"
+                onClick={updateTodo}
+              >
                 Save
               </Button>
             </Stack>
           </AddTodo>
         </div>
 
-        {loading && <div className="p-12 text-center text-slate-400 text-base">Loading tasks...</div>}
+        {loading && (
+          <div className="p-12 text-center text-slate-400 text-base">
+            Loading tasks...
+          </div>
+        )}
         {!loading && todoList.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 text-base">You have no tasks pending! ✨</div>
+          <div className="p-12 text-center text-slate-400 text-base">
+            You have no tasks pending! ✨
+          </div>
         ) : (
           <div className="mt-3">
-          {todoList
-            .sort((a, b) => b.id - a.id)
-            .map((todo, index) => (
-              <div className="px-6 py-4 bg-white my-3 mx-6 rounded-xl border border-slate-200 flex flex-col gap-1.5 transition-all duration-200 hover:border-slate-300 hover:-translate-y-px hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]" key={index}>
-                <div className="font-semibold text-base text-slate-800">{todo?.title}</div>
-                <div className="text-sm text-slate-500 flex items-center gap-2">
-                  {moment(todo?.Date, "YYYY-MM-DD").format("ll")} • {todo?.time}
+            {todoList
+              .sort((a, b) => b.id - a.id)
+              .map((todo, index) => (
+                <div
+                  className="px-6 py-4 bg-white my-3 mx-6 rounded-xl border border-slate-200 flex flex-col gap-1.5 transition-all duration-200 hover:border-slate-300 hover:-translate-y-px hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]"
+                  key={index}
+                >
+                  <div className="font-semibold text-base text-slate-800">
+                    {todo?.title}
+                  </div>
+                  <div className="text-sm text-slate-500 flex items-center gap-2">
+                    {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
+                    {todo?.time}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>
