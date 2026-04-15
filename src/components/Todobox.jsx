@@ -23,10 +23,10 @@ function TodoBox() {
   useEffect(() => {
     async function loadData() {
       const item = localStorage.getItem("TodoList");
-      const uid = currentUser.uid;
       const dbRef = ref(getDatabase());
 
       if (currentUser !== null) {
+        const uid = currentUser.uid;
         setLogin(true);
         await get(child(dbRef, `todos/${uid}`))
           .then((snapshot) => {
@@ -98,7 +98,7 @@ function TodoBox() {
                   console.log(snapshot.val());
                   localStorage.setItem(
                     "TodoList",
-                    JSON.stringify(snapshot.val())
+                    JSON.stringify(snapshot.val()),
                   );
                   setTodoList(snapshot.val());
                   //console.log("data inserted");
@@ -122,16 +122,16 @@ function TodoBox() {
   };
 
   return (
-    <div className="todo_body">
-      <div className="todo_inner">
-        <div className="todo_header">
-          <div className="title">List</div>
+    <div className="my-[40px] mx-auto flex justify-center items-center px-4 max-w-full">
+      <div className="w-[600px] max-w-full rounded-2xl bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.01)] border border-slate-100 pb-4 overflow-hidden">
+        <div className="p-6 flex items-center justify-between border-b border-slate-100 bg-white">
+          <div className="font-bold text-2xl text-slate-900 tracking-tight">My Tasks</div>
           <AddTodo
             open={open}
             handleClose={handleClose}
             handleOpen={handleOpen}
           >
-            <h2 style={{ textAlign: "center", marginBottom: "22px" }}>
+            <h2 className="text-center mb-6 font-bold text-xl text-slate-800">
               Add New Task
             </h2>
             {/* <TextField
@@ -140,7 +140,7 @@ function TodoBox() {
               label="Enter Task"
             /> */}
 
-            <div className="textField">
+            <div className="mb-6">
               <TextField
                 id="outlined-basic"
                 label="Enter Task"
@@ -151,7 +151,7 @@ function TodoBox() {
                 error={inpError && true}
               />
               {inpError ? (
-                <span className="error">Please enter a value</span>
+                <span className="text-red-500 text-xs mt-1 block">Please enter a value</span>
               ) : (
                 ""
               )}
@@ -164,7 +164,7 @@ function TodoBox() {
                 type="date"
                 value={date}
                 onChange={handleDate}
-                className="textField"
+                className="mb-6"
                 // defaultValue="2017-05-24"
                 sx={{ width: "100%" }}
                 InputLabelProps={{
@@ -179,7 +179,7 @@ function TodoBox() {
                 type="time"
                 value={time}
                 onChange={handleTime}
-                className="textField"
+                className="mb-6"
                 // defaultValue="07:30"
                 InputLabelProps={{
                   shrink: true,
@@ -195,35 +195,34 @@ function TodoBox() {
             <Stack
               direction="row"
               spacing={2}
-              style={{ marginTop: "30px", justifyContent: "flex-end" }}
+              className="mt-[30px] justify-end"
             >
               <Button variant="outlined" color="error" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button variant="contained" onClick={updateTodo}>
+              <Button variant="contained" className="!bg-indigo-500 !hover:bg-indigo-600" onClick={updateTodo}>
                 Save
               </Button>
             </Stack>
           </AddTodo>
         </div>
 
-        {loading && <div style={{ textAlign: "center" }}>Loading.....</div>}
+        {loading && <div className="p-12 text-center text-slate-400 text-base">Loading tasks...</div>}
         {!loading && todoList.length === 0 ? (
-          <div>No task found</div>
+          <div className="p-12 text-center text-slate-400 text-base">You have no tasks pending! ✨</div>
         ) : (
-          todoList
+          <div className="mt-3">
+          {todoList
             .sort((a, b) => b.id - a.id)
             .map((todo, index) => (
-              <div className="todoListCon" key={index}>
-                <div>{todo?.title}</div>
-                {/* <div>
-                {todo?.Date} - {todo?.time}
-              </div> */}
-                <div>
-                  {moment(todo?.Date, "YYYY-MM-DD").format("ll")} - {todo?.time}
+              <div className="px-6 py-4 bg-white my-3 mx-6 rounded-xl border border-slate-200 flex flex-col gap-1.5 transition-all duration-200 hover:border-slate-300 hover:-translate-y-px hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]" key={index}>
+                <div className="font-semibold text-base text-slate-800">{todo?.title}</div>
+                <div className="text-sm text-slate-500 flex items-center gap-2">
+                  {moment(todo?.Date, "YYYY-MM-DD").format("ll")} • {todo?.time}
                 </div>
               </div>
-            ))
+            ))}
+          </div>
         )}
       </div>
     </div>
