@@ -31,7 +31,7 @@ export default function AddTodo({ children, open, handleClose, handleOpen }) {
       >
         <Box
           sx={style}
-          className="w-[480px] max-w-[92%] !rounded-[16px] p-8 outline-none border-none"
+          className="w-[480px] max-w-[92%] !rounded-[16px] p-8 outline-none border-none dark:bg-slate-900"
         >
           {children}
         </Box>

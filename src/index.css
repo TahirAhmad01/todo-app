@@ -4,6 +4,6 @@
 
 @layer base {
   body {
-    @apply min-h-screen font-sans bg-slate-50 text-slate-700 antialiased;
+    @apply min-h-screen font-sans bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 antialiased transition-colors duration-200;
   }
 }
