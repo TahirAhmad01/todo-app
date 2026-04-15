@@ -67,16 +67,12 @@ function GoogleLogin() {
             </div>
 
             <div className="text-center">
-              {/* <button onClick={logout} className="logout_btn"> */}
               <button
                 onClick={handleLogOut}
-                className="border-none text-2xl text-slate-400 bg-transparent transition-colors duration-200 hover:cursor-pointer hover:text-red-500"
+                disabled={loading2}
+                className="bg-white text-slate-700 px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading2 ? (
-                  "loading"
-                ) : (
-                  <i className="fa-solid fa-arrow-right-from-bracket"></i>
-                )}
+                {loading2 ? "Logging out..." : "Logout"}
               </button>
             </div>
           </div>

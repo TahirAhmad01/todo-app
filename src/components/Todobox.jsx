@@ -86,7 +86,7 @@ function TodoBox() {
       const db = getDatabase();
       const dbRef = ref(getDatabase());
 
-      todoList.push({ title: value, Date: date, time, id: newId });
+      todoList.push({ title: value, Date: date, time, id: newId, completed: false });
       handleClose();
 
       if (currentUser !== null) {
@@ -118,6 +118,20 @@ function TodoBox() {
       }
     } else {
       setInpError(true);
+    }
+  };
+
+  const toggleComplete = (taskId) => {
+    const updatedList = todoList.map((todo) =>
+      todo.id === taskId ? { ...todo, completed: !todo.completed } : todo
+    );
+
+    setTodoList([...updatedList]);
+    localStorage.setItem("TodoList", JSON.stringify(updatedList));
+
+    if (currentUser !== null) {
+      const db = getDatabase();
+      set(ref(db, "todos/" + uid), updatedList).catch((err) => console.log(err));
     }
   };
 
@@ -230,15 +244,38 @@ function TodoBox() {
               .sort((a, b) => b.id - a.id)
               .map((todo, index) => (
                 <div
-                  className="px-6 py-4 bg-white my-3 mx-6 rounded-xl border border-slate-200 flex flex-col gap-1.5 transition-all duration-200 hover:border-slate-300 hover:-translate-y-px hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]"
-                  key={index}
+                  className={`px-6 py-4 my-3 mx-6 rounded-xl border flex items-center justify-start gap-4 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] ${
+                    todo?.completed 
+                      ? "bg-slate-50 border-slate-200/60 opacity-60" 
+                      : "bg-white border-slate-200 hover:border-indigo-200"
+                  }`}
+                  key={todo?.id || index}
                 >
-                  <div className="font-semibold text-base text-slate-800">
-                    {todo?.title}
-                  </div>
-                  <div className="text-sm text-slate-500 flex items-center gap-2">
-                    {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
-                    {todo?.time}
+                  <button
+                    onClick={() => toggleComplete(todo?.id)}
+                    className={`shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                      todo?.completed
+                        ? "bg-green-500 border-green-500"
+                        : "bg-transparent border-slate-300 hover:border-indigo-400"
+                    }`}
+                  >
+                    {todo?.completed && (
+                      <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+
+                  <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                    <div className={`font-semibold text-base truncate transition-all duration-200 ${
+                      todo?.completed ? "text-slate-400 line-through decoration-slate-400" : "text-slate-800"
+                    }`}>
+                      {todo?.title}
+                    </div>
+                    <div className="text-sm text-slate-500 flex items-center gap-2">
+                      {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
+                      {todo?.time}
+                    </div>
                   </div>
                 </div>
               ))}
