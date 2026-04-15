@@ -23,10 +23,10 @@ function TodoBox() {
   useEffect(() => {
     async function loadData() {
       const item = localStorage.getItem("TodoList");
-      const uid = currentUser.uid;
       const dbRef = ref(getDatabase());
 
       if (currentUser !== null) {
+        const uid = currentUser.uid;
         setLogin(true);
         await get(child(dbRef, `todos/${uid}`))
           .then((snapshot) => {
@@ -86,7 +86,13 @@ function TodoBox() {
       const db = getDatabase();
       const dbRef = ref(getDatabase());
 
-      todoList.push({ title: value, Date: date, time, id: newId });
+      todoList.push({
+        title: value,
+        Date: date,
+        time,
+        id: newId,
+        completed: false,
+      });
       handleClose();
 
       if (currentUser !== null) {
@@ -98,7 +104,7 @@ function TodoBox() {
                   console.log(snapshot.val());
                   localStorage.setItem(
                     "TodoList",
-                    JSON.stringify(snapshot.val())
+                    JSON.stringify(snapshot.val()),
                   );
                   setTodoList(snapshot.val());
                   //console.log("data inserted");
@@ -121,17 +127,35 @@ function TodoBox() {
     }
   };
 
+  const toggleComplete = (taskId) => {
+    const updatedList = todoList.map((todo) =>
+      todo.id === taskId ? { ...todo, completed: !todo.completed } : todo,
+    );
+
+    setTodoList([...updatedList]);
+    localStorage.setItem("TodoList", JSON.stringify(updatedList));
+
+    if (currentUser !== null) {
+      const db = getDatabase();
+      set(ref(db, "todos/" + uid), updatedList).catch((err) =>
+        console.log(err),
+      );
+    }
+  };
+
   return (
-    <div className="todo_body">
-      <div className="todo_inner">
-        <div className="todo_header">
-          <div className="title">List</div>
+    <div className="my-[40px] mx-auto flex justify-center items-center px-4 max-w-full">
+      <div className="w-[600px] max-w-full rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 pb-4 overflow-hidden transition-colors duration-200">
+        <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors duration-200">
+          <div className="font-bold text-2xl text-slate-900 dark:text-slate-100 tracking-tight">
+            My Tasks
+          </div>
           <AddTodo
             open={open}
             handleClose={handleClose}
             handleOpen={handleOpen}
           >
-            <h2 style={{ textAlign: "center", marginBottom: "22px" }}>
+            <h2 className="text-center mb-6 font-bold text-xl text-slate-800 dark:text-slate-100">
               Add New Task
             </h2>
             {/* <TextField
@@ -140,7 +164,7 @@ function TodoBox() {
               label="Enter Task"
             /> */}
 
-            <div className="textField">
+            <div className="mb-6">
               <TextField
                 id="outlined-basic"
                 label="Enter Task"
@@ -151,7 +175,9 @@ function TodoBox() {
                 error={inpError && true}
               />
               {inpError ? (
-                <span className="error">Please enter a value</span>
+                <span className="text-red-500 text-xs mt-1 block">
+                  Please enter a value
+                </span>
               ) : (
                 ""
               )}
@@ -164,7 +190,7 @@ function TodoBox() {
                 type="date"
                 value={date}
                 onChange={handleDate}
-                className="textField"
+                className="mb-6"
                 // defaultValue="2017-05-24"
                 sx={{ width: "100%" }}
                 InputLabelProps={{
@@ -179,7 +205,7 @@ function TodoBox() {
                 type="time"
                 value={time}
                 onChange={handleTime}
-                className="textField"
+                className="mb-6"
                 // defaultValue="07:30"
                 InputLabelProps={{
                   shrink: true,
@@ -195,35 +221,85 @@ function TodoBox() {
             <Stack
               direction="row"
               spacing={2}
-              style={{ marginTop: "30px", justifyContent: "flex-end" }}
+              className="mt-[30px] justify-end"
             >
               <Button variant="outlined" color="error" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button variant="contained" onClick={updateTodo}>
+              <Button
+                variant="contained"
+                className="!bg-indigo-500 !hover:bg-indigo-600"
+                onClick={updateTodo}
+              >
                 Save
               </Button>
             </Stack>
           </AddTodo>
         </div>
 
-        {loading && <div style={{ textAlign: "center" }}>Loading.....</div>}
+        {loading && (
+          <div className="p-12 text-center text-slate-400 text-base">
+            Loading tasks...
+          </div>
+        )}
         {!loading && todoList.length === 0 ? (
-          <div>No task found</div>
+          <div className="p-12 text-center text-slate-400 dark:text-slate-500 text-base">
+            You have no tasks pending! ✨
+          </div>
         ) : (
-          todoList
-            .sort((a, b) => b.id - a.id)
-            .map((todo, index) => (
-              <div className="todoListCon" key={index}>
-                <div>{todo?.title}</div>
-                {/* <div>
-                {todo?.Date} - {todo?.time}
-              </div> */}
-                <div>
-                  {moment(todo?.Date, "YYYY-MM-DD").format("ll")} - {todo?.time}
+          <div className="mt-3">
+            {todoList
+              .sort((a, b) => b.id - a.id)
+              .map((todo, index) => (
+                <div
+                  className={`px-6 py-4 my-3 mx-6 rounded-xl border flex items-center justify-start gap-4 transition-all duration-200 hover:-translate-y-px hover:shadow-md ${
+                    todo?.completed
+                      ? "bg-slate-50 dark:bg-slate-800/40 border-slate-200/60 dark:border-slate-800 opacity-60"
+                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500/50"
+                  }`}
+                  key={todo?.id || index}
+                >
+                  <button
+                    onClick={() => toggleComplete(todo?.id)}
+                    className={`shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                      todo?.completed
+                        ? "bg-green-500 dark:bg-green-600 border-green-500 dark:border-green-600"
+                        : "bg-transparent border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-400"
+                    }`}
+                  >
+                    {todo?.completed && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </button>
+
+                  <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                    <div
+                      className={`font-semibold text-base truncate transition-all duration-200 ${
+                        todo?.completed
+                          ? "text-slate-400 dark:text-slate-500 line-through decoration-slate-400 dark:decoration-slate-500"
+                          : "text-slate-800 dark:text-slate-200"
+                      }`}
+                    >
+                      {todo?.title}
+                    </div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
+                      {todo?.time}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+          </div>
         )}
       </div>
     </div>

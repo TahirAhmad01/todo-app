@@ -15,14 +15,24 @@ const style = {
 export default function AddTodo({ children, open, handleClose, handleOpen }) {
   return (
     <div>
-      <Button onClick={handleOpen}>Add todo</Button>
+      <Button
+        variant="contained"
+        className="!bg-indigo-500 !hover:bg-indigo-600 !shadow-sm"
+        disableElevation
+        onClick={handleOpen}
+      >
+        + Add Task
+      </Button>
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style} className="modal_size">
+        <Box
+          sx={style}
+          className="w-[480px] max-w-[92%] !rounded-[16px] p-8 outline-none border-none dark:bg-slate-900"
+        >
           {children}
         </Box>
       </Modal>
