@@ -1,5 +1,5 @@
-// import "../node_modules/placeholder-loading/src/scss/placeholder-loading";
-import "../node_modules/placeholder-loading/src/scss/placeholder-loading.scss";
+// import "placeholder-loading/dist/css/placeholder-loading.css";
+import "placeholder-loading/dist/css/placeholder-loading.min.css";
 import { AuthProvider } from "./context/authContext";
 import Home from "./pages/home";
 import "./index.css";
