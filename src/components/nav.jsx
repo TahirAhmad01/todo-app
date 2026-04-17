@@ -1,18 +1,23 @@
 import React from "react";
 import Logo from "../assets/image/todo_logo.png";
-import GoogleLogin from "./GoogleLogin";
 
 function Nav({ toggleTheme, isDark }) {
   return (
-    <div className="h-[70px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-8 sticky top-0 z-50 transition-colors duration-200">
-      <div className="flex-grow text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center tracking-tight">
-        <img src={Logo} alt="logo" className="h-8 w-8 mr-3" />
-        <span>Todo App</span>
+    <div className="py-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b flex items-center justify-between px-8 sticky top-0 z-50 transition-colors duration-200 border-slate-200 dark:border-slate-800/60 shadow-sm">
+      <div className="flex items-center gap-3">
+        <div className="bg-indigo-500/10 dark:bg-indigo-500/20 p-2 rounded-xl">
+          <img src={Logo} alt="logo" className="h-6 w-6 object-contain" />
+        </div>
+        <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+          Todo App
+        </span>
       </div>
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center gap-6">
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-all duration-200 hover:rotate-12"
+          aria-label="Toggle theme"
         >
           {isDark ? (
             <svg
@@ -44,7 +49,6 @@ function Nav({ toggleTheme, isDark }) {
             </svg>
           )}
         </button>
-        <GoogleLogin />
       </div>
     </div>
   );

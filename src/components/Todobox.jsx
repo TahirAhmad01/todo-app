@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "./../context/authContext";
 import AddTodo from "./AddTodo";
 
-function TodoBox() {
+function TodoBox({ filter = "all_uncompleted" }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
@@ -143,12 +143,35 @@ function TodoBox() {
     }
   };
 
+  const getFilteredTodos = () => {
+    const todayStr = moment().format("YYYY-MM-DD");
+    return todoList.filter((todo) => {
+      switch (filter) {
+        case "all_uncompleted":
+          return !todo.completed;
+        case "today":
+          return todo.Date === todayStr;
+        case "upcoming":
+          return todo.Date > todayStr && !todo.completed;
+        case "completed":
+          return todo.completed;
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredTodoList = getFilteredTodos();
+
   return (
-    <div className="my-[40px] mx-auto flex justify-center items-center px-4 max-w-full">
-      <div className="w-[600px] max-w-full rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800 pb-4 overflow-hidden transition-colors duration-200">
-        <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors duration-200">
-          <div className="font-bold text-2xl text-slate-900 dark:text-slate-100 tracking-tight">
-            My Tasks
+    <div className="mt-8 mb-[40px] mx-auto flex justify-center items-start px-4 sm:px-8 w-full max-w-3xl flex-1">
+      <div className="w-full rounded-2xl bg-white dark:bg-slate-900/50 shadow-xl border border-slate-200 dark:border-slate-800/60 pb-4 overflow-hidden transition-colors duration-200">
+        <div className="p-6 md:p-8 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 transition-colors duration-200">
+          <div className="font-bold text-2xl md:text-3xl text-slate-900 dark:text-slate-100 tracking-tight">
+            {filter === "all_uncompleted" && "Todo Lists"}
+            {filter === "today" && "Today's Task"}
+            {filter === "upcoming" && "Upcoming Task"}
+            {filter === "completed" && "Completed Task"}
           </div>
           <AddTodo
             open={open}
@@ -242,13 +265,13 @@ function TodoBox() {
             Loading tasks...
           </div>
         )}
-        {!loading && todoList.length === 0 ? (
+        {!loading && filteredTodoList.length === 0 ? (
           <div className="p-12 text-center text-slate-400 dark:text-slate-500 text-base">
-            You have no tasks pending! ✨
+            You have no tasks here! ✨
           </div>
         ) : (
           <div className="mt-3">
-            {todoList
+            {filteredTodoList
               .sort((a, b) => b.id - a.id)
               .map((todo, index) => (
                 <div
