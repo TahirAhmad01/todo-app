@@ -1,6 +1,8 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import { child, get, getDatabase, ref, set } from "firebase/database";
 import moment from "moment/moment";
 import { useEffect, useState } from "react";
@@ -14,6 +16,7 @@ function TodoBox({ filter = "all_uncompleted" }) {
   const [time, setTime] = useState("07:30");
   const [inpError, setInpError] = useState(false);
   const [loading, setLogin] = useState(false);
+  const [reminder, setReminder] = useState(false);
 
   const { todoList, currentUser, setTodoList } = useAuth() || {};
   const { uid } = currentUser || {};
@@ -52,12 +55,77 @@ function TodoBox({ filter = "all_uncompleted" }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!todoList || todoList.length === 0) return;
+      if (!("Notification" in window) || Notification.permission !== "granted")
+        return;
+
+      Object.values(todoList).forEach((todo) => {
+        const todayStr = moment().format("YYYY-MM-DD");
+        if (!todo.completed && todo.reminder && todo.Date === todayStr) {
+          const currTime = moment().format("HH:mm");
+          // If the current time is equal to or has passed the task time, and we haven't sent it yet
+          if (currTime >= todo.time) {
+            const notifiedKey = `notified-${todo.id}-${todo.Date}-${todo.time}`;
+            if (!sessionStorage.getItem(notifiedKey)) {
+              try {
+                new Notification("Task Reminder", {
+                  body: `It's time for: ${todo.title} ⏰`,
+                  icon: "/vite.svg",
+                });
+                sessionStorage.setItem(notifiedKey, "true");
+              } catch (e) {
+                console.log("Notification error:", e);
+              }
+            }
+          }
+        }
+      });
+    }, 10000); // Checks every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [todoList]);
+
   console.log(loading);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setInpError(false);
+    setReminder(false);
+  };
+
+  const handleReminderChange = (e) => {
+    const isChecked = e.target.checked;
+    if (isChecked) {
+      if ("Notification" in window) {
+        if (Notification.permission === "default") {
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              setReminder(true);
+              new Notification("Notifications Enabled", {
+                body: "You will now receive task reminders!",
+              });
+            } else {
+              setReminder(false);
+              alert("Notification permission denied.");
+            }
+          });
+        } else if (Notification.permission === "granted") {
+          setReminder(true);
+        } else {
+          setReminder(false);
+          alert(
+            "Notification permission is denied. Please enable it in your browser/OS settings.",
+          );
+        }
+      } else {
+        alert("This browser does not support notifications.");
+      }
+    } else {
+      setReminder(false);
+    }
   };
 
   const handleInp = (e) => {
@@ -86,17 +154,21 @@ function TodoBox({ filter = "all_uncompleted" }) {
       const db = getDatabase();
       const dbRef = ref(getDatabase());
 
-      todoList.push({
+      const newTask = {
         title: value,
         Date: date,
         time,
         id: newId,
         completed: false,
-      });
+        reminder: reminder,
+      };
+
+      const updatedList = [...todoList, newTask];
+      setTodoList(updatedList);
       handleClose();
 
       if (currentUser !== null) {
-        set(ref(db, "todos/" + uid), todoList)
+        set(ref(db, "todos/" + uid), updatedList)
           .then(() => {
             get(child(dbRef, `todos/${uid}`))
               .then((snapshot) => {
@@ -120,7 +192,7 @@ function TodoBox({ filter = "all_uncompleted" }) {
             console.log(err);
           });
       } else {
-        localStorage.setItem("TodoList", JSON.stringify(todoList));
+        localStorage.setItem("TodoList", JSON.stringify(updatedList));
       }
     } else {
       setInpError(true);
@@ -241,6 +313,22 @@ function TodoBox({ filter = "all_uncompleted" }) {
               />
             </Stack>
 
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={reminder}
+                  onChange={handleReminderChange}
+                  color="primary"
+                />
+              }
+              label={
+                <span className="text-slate-800 dark:text-slate-200">
+                  Set Reminder
+                </span>
+              }
+              className="mt-6"
+            />
+
             <Stack
               direction="row"
               spacing={2}
@@ -318,6 +406,21 @@ function TodoBox({ filter = "all_uncompleted" }) {
                     <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                       {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
                       {todo?.time}
+                      {todo?.reminder && (
+                        <svg
+                          className="w-4 h-4 ml-1 text-indigo-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                          />
+                        </svg>
+                      )}
                     </div>
                   </div>
                 </div>
