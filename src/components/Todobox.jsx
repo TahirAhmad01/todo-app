@@ -12,11 +12,15 @@ import AddTodo from "./AddTodo";
 function TodoBox({ filter = "all_uncompleted" }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+  const [description, setDescription] = useState("");
+  const [editId, setEditId] = useState(null);
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [time, setTime] = useState("07:30");
   const [inpError, setInpError] = useState(false);
   const [loading, setLogin] = useState(false);
   const [reminder, setReminder] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const { todoList, currentUser, setTodoList } = useAuth() || {};
   const { uid } = currentUser || {};
@@ -94,6 +98,36 @@ function TodoBox({ filter = "all_uncompleted" }) {
     setOpen(false);
     setInpError(false);
     setReminder(false);
+    setValue("");
+    setDescription("");
+    setEditId(null);
+    setDate(new Date().toISOString().substring(0, 10));
+    setTime("07:30");
+  };
+
+  const handleDescription = (e) => setDescription(e.target.value);
+
+  const openEditModal = (todo) => {
+    setValue(todo.title);
+    setDescription(todo.description || "");
+    setDate(todo.Date);
+    setTime(todo.time);
+    setReminder(todo.reminder || false);
+    setEditId(todo.id);
+    setOpen(true);
+  };
+
+  const deleteTodo = (taskId) => {
+    const updatedList = todoList.filter((todo) => todo.id !== taskId);
+    setTodoList([...updatedList]);
+    localStorage.setItem("TodoList", JSON.stringify(updatedList));
+
+    if (currentUser !== null) {
+      const db = getDatabase();
+      set(ref(db, "todos/" + uid), updatedList).catch((err) =>
+        console.log(err),
+      );
+    }
   };
 
   const handleReminderChange = (e) => {
@@ -147,6 +181,23 @@ function TodoBox({ filter = "all_uncompleted" }) {
     setTime(e.target.value);
   };
 
+  const openDeleteModal = (taskId) => {
+    setTaskToDelete(taskId);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setTaskToDelete(null);
+    setDeleteModalOpen(false);
+  };
+
+  const confirmDelete = () => {
+    if (taskToDelete) {
+      deleteTodo(taskToDelete);
+      closeDeleteModal();
+    }
+  };
+
   const newId = Math.floor(Date.now() / 1000);
 
   const updateTodo = () => {
@@ -154,16 +205,27 @@ function TodoBox({ filter = "all_uncompleted" }) {
       const db = getDatabase();
       const dbRef = ref(getDatabase());
 
-      const newTask = {
-        title: value,
-        Date: date,
-        time,
-        id: newId,
-        completed: false,
-        reminder: reminder,
-      };
+      let updatedList;
+      if (editId) {
+        updatedList = todoList.map((todo) =>
+          todo.id === editId
+            ? { ...todo, title: value, description, Date: date, time, reminder }
+            : todo,
+        );
+      } else {
+        const newId = Math.floor(Date.now() / 1000);
+        const newTask = {
+          title: value,
+          description: description,
+          Date: date,
+          time,
+          id: newId,
+          completed: false,
+          reminder: reminder,
+        };
+        updatedList = [...todoList, newTask];
+      }
 
-      const updatedList = [...todoList, newTask];
       setTodoList(updatedList);
       handleClose();
 
@@ -251,7 +313,7 @@ function TodoBox({ filter = "all_uncompleted" }) {
             handleOpen={handleOpen}
           >
             <h2 className="text-center mb-6 font-bold text-xl text-slate-800 dark:text-slate-100">
-              Add New Task
+              {editId ? "Edit Task" : "Add New Task"}
             </h2>
             {/* <TextField
               helperText=" "
@@ -276,6 +338,19 @@ function TodoBox({ filter = "all_uncompleted" }) {
               ) : (
                 ""
               )}
+            </div>
+
+            <div className="mb-6">
+              <TextField
+                id="description"
+                label="Description"
+                variant="outlined"
+                sx={{ width: "100%" }}
+                onChange={handleDescription}
+                value={description}
+                multiline
+                rows={3}
+              />
             </div>
 
             <Stack component="form" spacing={3}>
@@ -403,6 +478,17 @@ function TodoBox({ filter = "all_uncompleted" }) {
                     >
                       {todo?.title}
                     </div>
+                    {todo?.description && (
+                      <div
+                        className={`text-sm break-words transition-all duration-200 ${
+                          todo?.completed
+                            ? "text-slate-400 dark:text-slate-500 line-through"
+                            : "text-slate-600 dark:text-slate-400"
+                        }`}
+                      >
+                        {todo.description}
+                      </div>
+                    )}
                     <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                       {moment(todo?.Date, "YYYY-MM-DD").format("ll")} •{" "}
                       {todo?.time}
@@ -423,11 +509,57 @@ function TodoBox({ filter = "all_uncompleted" }) {
                       )}
                     </div>
                   </div>
+                  <div className="flex gap-2 shrink-0 ml-4">
+                    <button
+                      onClick={() => openEditModal(todo)}
+                      className="p-1 px-3 text-sm rounded bg-indigo-50 text-indigo-500 hover:bg-indigo-100 hover:text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(todo.id)}
+                      className="p-1 px-3 text-sm rounded bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
           </div>
         )}
       </div>
+
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-[400px] shadow-2xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+              Delete Task
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
+              Are you sure you want to delete this task? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="text"
+                color="inherit"
+                className="!text-slate-600 dark:!text-slate-400 !font-medium"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                className="!bg-red-500 hover:!bg-red-600 !shadow-none"
+                onClick={confirmDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

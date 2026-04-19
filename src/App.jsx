@@ -4,24 +4,21 @@ import { useEffect } from "react";
 import { AuthProvider } from "./context/authContext";
 import Home from "./pages/home";
 import "./index.css";
-// import { requestFCMToken, setupMessageListener } from "./firebase/config";
-import { subscribeToWebPush } from "./webPush";
+import { requestFCMToken, setupMessageListener } from "./firebase/config";
 
+// FCM code restored
 function App() {
   useEffect(() => {
-    // const initializeFCM = async () => {
-    //   const token = await requestFCMToken();
-    //   if (token) {
-    //     console.log("🔥 YOUR FCM TOKEN FOR TESTING IS:");
-    //     console.log(token);
-    //   }
-    //   setupMessageListener();
-    // };
+    const initializeFCM = async () => {
+      const token = await requestFCMToken();
+      if (token) {
+        console.log("🔥 YOUR FCM TOKEN FOR TESTING IS:");
+        console.log(token);
+      }
+      setupMessageListener();
+    };
 
-    // initializeFCM();
-
-    // Using vanilla web-push API
-    subscribeToWebPush();
+    initializeFCM();
   }, []);
 
   return (
