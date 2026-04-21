@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAuth } from "../context/authContext";
 import GoogleLogin from "./GoogleLogin";
 
 function Sidebar({ activeFilter, setFilter, onOpenSearch }) {
-  const { currentUser } = useAuth() || {};
+  const { currentUser, todoList } = useAuth() || {};
+
+  // Extract unique labels from all tasks
+  const uniqueLabels = useMemo(() => {
+    if (!todoList) return [];
+    const labels = new Set();
+    todoList.forEach((todo) => {
+      if (todo.label) {
+        labels.add(todo.label.toLowerCase().trim());
+      }
+    });
+    return Array.from(labels);
+  }, [todoList]);
 
   const getMenuClass = (filterName) => {
     return activeFilter === filterName
@@ -129,6 +141,31 @@ function Sidebar({ activeFilter, setFilter, onOpenSearch }) {
             </button>
           </li>
         </ul>
+
+        {uniqueLabels.length > 0 && (
+          <div className="mt-8 px-3">
+            <h3 className="px-3 mb-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              Labels
+            </h3>
+            <ul className="space-y-1.5">
+              {uniqueLabels.map((lbl) => (
+                <li key={lbl}>
+                  <button
+                    onClick={() => setFilter(`label_${lbl}`)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 ${
+                      activeFilter === `label_${lbl}`
+                        ? "bg-indigo-50/50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 font-medium"
+                    } rounded-lg transition-colors`}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 dark:bg-indigo-500 shrink-0"></span>
+                    <span className="text-sm capitalize">{lbl}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* User Profile Section */}
